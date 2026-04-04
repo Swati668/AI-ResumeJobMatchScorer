@@ -1,9 +1,3 @@
-
-import string
-from nltk.tokenize import word_tokenize
-from nltk.tokenize import sent_tokenize
-from nltk.corpus import stopwords
-import pdfplumber
 import nltk
 
 def get_stopwords():
@@ -14,13 +8,23 @@ def get_stopwords():
     from nltk.corpus import stopwords
     return set(stopwords.words('english'))
 
-def get_sent_tokenizer():
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        nltk.download('punkt', quiet=True)
+
+def nltk_tokenizers():
+    for resource in ['punkt', 'punkt_tab']:
+        try:
+            nltk.data.find(f'tokenizers/{resource}')
+        except LookupError:
+            nltk.download(resource, quiet=True)
+    
     from nltk.tokenize import sent_tokenize
     return sent_tokenize
+
+
+import string
+from nltk.tokenize import word_tokenize
+from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
+import pdfplumber
 
 
 def normalization(tokens):
@@ -42,7 +46,7 @@ def normalization(tokens):
 
 
 def get_sentences(text):
-    sent_tokenize = get_sent_tokenizer()
+    sent_tokenize = nltk_tokenizers()
     return sent_tokenize(text)
 
 
