@@ -1,16 +1,6 @@
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 from flashtext import KeywordProcessor
-import nltk
-
-
-@st.cache_data
-def download_nltk_resources():
-    nltk.download('stopwords')
-    nltk.download('punkt')
-
-
-
 
 
 import os

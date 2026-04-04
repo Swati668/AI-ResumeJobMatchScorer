@@ -4,6 +4,24 @@ from nltk.tokenize import word_tokenize
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 import pdfplumber
+import nltk
+
+def get_stopwords():
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        nltk.download('stopwords', quiet=True)
+    from nltk.corpus import stopwords
+    return set(stopwords.words('english'))
+
+def get_sent_tokenizer():
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt', quiet=True)
+    from nltk.tokenize import sent_tokenize
+    return sent_tokenize
+
 
 def normalization(tokens):
     normalized=[]
@@ -23,11 +41,12 @@ def normalization(tokens):
     return normalized
 
 
-def get_sentences(resume):
-    return sent_tokenize(resume)
+def get_sentences(text):
+    sent_tokenize = get_sent_tokenizer()
+    return sent_tokenize(text)
 
 
-stop_words=set(stopwords.words('english'))
+stop_words = get_stopwords()
 def clean_text(text):
     text=text.lower()
 

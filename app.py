@@ -1,9 +1,6 @@
 import streamlit as st
 from modules.preprocessing import extract_text_from_pdf
 from modules.analyzer import analyze_resume
-from modules.model_utils import download_nltk_resources
-
-download_nltk_resources()
 
 
 st.set_page_config(page_title='Resume Matcher',layout='wide')
