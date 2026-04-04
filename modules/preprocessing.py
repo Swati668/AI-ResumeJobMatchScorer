@@ -16,8 +16,7 @@ def nltk_tokenizers():
         except LookupError:
             nltk.download(resource, quiet=True)
     
-    from nltk.tokenize import sent_tokenize
-    return sent_tokenize
+nltk_tokenizers()
 
 
 import string
@@ -46,7 +45,6 @@ def normalization(tokens):
 
 
 def get_sentences(text):
-    sent_tokenize = nltk_tokenizers()
     return sent_tokenize(text)
 
 
