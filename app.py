@@ -1,9 +1,10 @@
 import streamlit as st
 from modules.preprocessing import extract_text_from_pdf
 from modules.analyzer import analyze_resume
+from modules.model_utils import download_nltk_resources
 
-import os
-print("Streamlit is running from CWD:", os.getcwd())
+download_nltk_resources()
+
 
 st.set_page_config(page_title='Resume Matcher',layout='wide')
 st.title('Resume Job Match Scorer')
