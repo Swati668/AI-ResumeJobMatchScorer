@@ -6,4 +6,5 @@ sentence-transformers
 flashtext
 pdfplumber
 reportlab
+python-dotenv
 google-generativeai
