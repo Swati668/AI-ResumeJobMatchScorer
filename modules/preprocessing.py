@@ -1,4 +1,5 @@
 import nltk
+import re
 
 def get_stopwords():
     try:
@@ -47,6 +48,11 @@ def normalization(tokens):
 def get_sentences(text):
     return sent_tokenize(text)
 
+def clean_text_light(text):
+    text = text.lower()
+    text = text.replace('\n', ' ')
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
 stop_words = get_stopwords()
 def clean_text(text):
