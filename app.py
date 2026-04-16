@@ -63,7 +63,11 @@ if analyze:
 
     with st.spinner('Analyzing Resume + Running AI Agents...'):
         try:
+            st.write("Step 1: Starting analysis")
             nlp_result = analyze_resume(jd_text, resume_text)
+
+            st.write("Step 2: Got result")
+            st.write(nlp_result)
 
             from agents.combined_agent import CareerAnalystAgent
             career_analyst = CareerAnalystAgent()
