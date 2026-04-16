@@ -70,7 +70,7 @@ if analyze:
             st.write(nlp_result)
 
             import os
-            st.write("API KEY:", os.getenv("GEMINI_API_KEY"))
+            st.write("API KEY:", st.secrets["GEMINI_API_KEY"])
 
             from agents.combined_agent import CareerAnalystAgent
             career_analyst = CareerAnalystAgent()
