@@ -69,8 +69,8 @@ if analyze:
             st.write("Step 2: Got result")
             st.write(nlp_result)
 
-            import os
-            st.write("API KEY:", st.secrets["GEMINI_API_KEY"])
+            
+            st.write("API KEY:", st.secrets["GOOGLE_API_KEY"])
 
             from agents.combined_agent import CareerAnalystAgent
             career_analyst = CareerAnalystAgent()
