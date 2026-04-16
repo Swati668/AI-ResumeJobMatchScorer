@@ -63,14 +63,8 @@ if analyze:
 
     with st.spinner('Analyzing Resume + Running AI Agents...'):
         try:
-            st.write("Step 1: Starting analysis")
-            nlp_result = analyze_resume(jd_text, resume_text)
-
-            st.write("Step 2: Got result")
-            st.write(nlp_result)
-
             
-            st.write("API KEY:", st.secrets["GOOGLE_API_KEY"])
+            nlp_result = analyze_resume(jd_text, resume_text)
 
             from agents.combined_agent import CareerAnalystAgent
             career_analyst = CareerAnalystAgent()
@@ -360,7 +354,7 @@ with tab7:
             st.subheader("Detailed Breakdown")
 
             for idx, res in enumerate(results, 1):
-                with st.expander(f"🏅 Rank {idx}: {res['filename']} ({res['final_score']}%)"):
+                with st.expander(f"Rank {idx}: {res['filename']} ({res['final_score']}%)"):
 
                     if "error" in res:
                         st.error(f"Error processing file: {res['error']}")
@@ -368,18 +362,18 @@ with tab7:
                         col1, col2 = st.columns(2)
 
                         with col1:
-                            st.metric("🧠 Semantic", f"{res['semantic_score']}%")
-                            st.metric("🛠 Skills", f"{res['skills_score']}%")
+                            st.metric("Semantic", f"{res['semantic_score']}%")
+                            st.metric("Skills", f"{res['skills_score']}%")
 
                         with col2:
-                            st.metric("📄 Structure", f"{res['structure_score']}%")
-                            st.metric("⭐ Final", f"{res['final_score']}%")
+                            st.metric("Structure", f"{res['structure_score']}%")
+                            st.metric("Final", f"{res['final_score']}%")
 
             # ---------------- REASONING AGENT ----------------
             if use_reasoning:
 
                 st.divider()
-                st.subheader("🧠 AI Resume Reasoning & Improvement")
+                st.subheader("AI Resume Reasoning & Improvement")
                 top_k = results[:3]
 
                 ranked_resumes = [
