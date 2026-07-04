@@ -293,7 +293,7 @@ if analyze:
 
 # ---------------- RANKING RESUMES ----------------
 with tab7:
-    st.header("Multi-Resume Ranking System (ATS Simulation)")
+    st.header("Multi-Resume Ranking System")
 
     st.markdown("Upload multiple resumes and rank them for a given job description.")
 

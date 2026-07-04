@@ -1,127 +1,134 @@
 # AI Resume Matcher
 
-This project is a simple web app that helps compare a resume with a job description and tells how well they match.
+This project is a web application that compares resumes with job descriptions and estimates how well they match.
 
-I built this to understand how resumes are evaluated and to go beyond basic keyword matching by adding some AI-based analysis.
+It goes beyond simple keyword matching by combining traditional NLP techniques with semantic similarity and LLM-based feedback to provide more meaningful resume analysis.
 
+## Live Demo
 
+**Streamlit Dashboard:**  
+https://ai-resumejobmatchscorer-bwm3pferiappw24ewfaffx7.streamlit.app
+
+---
 
 ## What this project does
 
-* You can upload a resume (PDF or TXT)
-* Paste a job description
-* The app compares both and shows:
-  * Matching skills
-  * Missing skills
-  * Overall match score
-* It also gives some AI-based feedback about the resume
+- Upload one or more resumes (PDF or TXT)
+- Paste a job description
+- Compare resumes with the job description
+- View:
+  - Overall match score
+  - Matched skills
+  - Missing skills
+- Generate AI-based resume feedback
+- Rank multiple resumes based on their relevance
 
+---
 
+## Why this is an AI Resume Matcher
 
+Most basic resume screening tools rely only on keyword matching.
 
-## Why I call it an "AI Resume Matcher"
+This project combines multiple approaches to provide a more meaningful evaluation:
 
-Most basic tools just check if keywords match.
+- Uses **TF-IDF** for keyword-based similarity
+- Uses **Sentence Transformers** for semantic similarity
+- Uses **Gemini** to generate personalized resume feedback
+- Combines traditional NLP techniques with LLM-based reasoning
 
-This project tries to go a bit further:
+Instead of simply indicating whether a resume matches a job description, the application explains **why** and highlights areas for improvement.
 
-* It uses **semantic similarity**, so it understands meaning, not just exact words
-* It uses **LLMs (like Gemini or OpenAI)** to analyze the resume and give feedback
-* It combines traditional ML (like TF-IDF) with AI-based reasoning
-
-So instead of just saying “match/not match”, it explains *why*.
-
-
+---
 
 ## Features
 
-* Upload resume (PDF/TXT)
-* Compare with job description
-* Skill matching (matched + missing skills)
-* TF-IDF based scoring
-* Semantic similarity using transformers
-* Categorization of missing skills
-* AI-based resume analysis
-* Ranking multiple resumes
-  
+- Resume upload (PDF/TXT)
+- Job description matching
+- Match score generation
+- Matched and missing skills analysis
+- TF-IDF similarity scoring
+- Semantic similarity using Sentence Transformers
+- AI-generated resume feedback
+- **Multi-Resume Ranking (AI-Assisted Ranking)**
 
+---
 
 ## Tech Stack
 
-* Python
-* Streamlit
-* Pandas, NumPy
-* Scikit-learn (TF-IDF)
-* Sentence Transformers
-* FlashText, RapidFuzz
-* Gemini
+- Python
+- Streamlit
+- Pandas
+- NumPy
+- Scikit-learn
+- Sentence Transformers
+- FlashText
+- RapidFuzz
+- Gemini API
 
+---
 
+## How to Run
 
-## How to run this project
+### 1. Clone the repository
 
-### 1. Clone the repo
-
-
+```bash
 git clone <your-repo-link>
 cd <your-project-folder>
+```
 
+### 2. Create a virtual environment
 
-### 2. Create virtual environment
-
-
+```bash
 python -m venv venv
-
+```
 
 Activate it:
 
-* Mac/Linux:
+**Windows**
 
-
-source venv/bin/activate
-
-
-* Windows:
-
-
+```bash
 venv\Scripts\activate
+```
 
+**Mac/Linux**
+
+```bash
+source venv/bin/activate
+```
 
 ### 3. Install dependencies
 
-
+```bash
 pip install -r requirements.txt
+```
 
+### 4. Configure your Gemini API key
 
-### 4. (Optional) Set OpenAI / Gemini(Google) API key
+```bash
+export GEMINI_API_KEY=your_api_key
+```
 
+*(On Windows, set it using the appropriate environment variable command.)*
 
-export OPENAI_API_KEY=your_api_key
+### 5. Run the application
 
-
-### 5. Run the app
-
-
+```bash
 streamlit run app.py
-
-
-
-## Future improvements
-
-* Better UI
-* More detailed feedback
-* Interview question suggestions
-
-
-
-## Why I made this
-
-I wanted to build something practical while learning:
-
-* NLP
-* Machine Learning
-* How LLMs can be used in real applications
-
-This project is a step towards building smarter AI tools for job preparation.
+```
 
 ---
+
+## Future Improvements
+
+- Improve the UI/UX
+- Support additional resume formats
+- Generate interview questions based on the job description
+- Add recruiter analytics and resume comparison insights
+
+---
+
+## Motivation
+
+I built this project while learning NLP and Large Language Models to understand how AI can be applied to practical hiring workflows.
+
+The goal was to combine traditional machine learning techniques with modern LLMs to create a smarter and more informative resume screening application.
