@@ -167,11 +167,10 @@ The project is organized into the following main components:
 ## Error Handling
 
 <p align="center">
-<img src="screenshots/home.png" width="900">
+<img src="screenshots/error_handling.png" width="900">
 </p>
 
 ---
-
 
 # Tech Stack
 
@@ -208,7 +207,7 @@ The project is organized into the following main components:
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Swati668/AI-ResumeJobMatchScorer.git
 cd AI-Resume-Matcher
 ```
 
@@ -289,10 +288,3 @@ While building this project, I gained practical experience with:
 - Developing interactive web applications with Streamlit
 - Combining traditional NLP techniques with Generative AI
 
----
-
-# Motivation
-
-I built this project while learning Natural Language Processing and Large Language Models to understand how AI can be applied to real-world hiring workflows.
-
-Working on this project helped me explore how traditional NLP methods, semantic similarity, and Generative AI can complement each other to create a more informative resume screening system instead of relying only on keyword matching.
