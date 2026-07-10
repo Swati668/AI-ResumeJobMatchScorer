@@ -148,6 +148,8 @@ The project is organized into the following main components:
 <img src="screenshots/ranking.png" width="900">
 </p>
 
+---
+
 ### Detailed Breakdown
 
 <p align="center">
