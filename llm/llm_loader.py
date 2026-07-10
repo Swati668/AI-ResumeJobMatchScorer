@@ -1,16 +1,7 @@
-#import os
-#from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
 import streamlit as st
 
+client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
 
-#load_dotenv()
-
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-
-def load_gemini_llm(model_name="gemini-2.0-flash"):
-    model = genai.GenerativeModel(
-        model_name=model_name
-    )
-    return model
-
+def load_gemini_llm():
+    return client

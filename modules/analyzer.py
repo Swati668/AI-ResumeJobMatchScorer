@@ -52,7 +52,7 @@ def analyze_resume(jd_text,resume_text):
 
     sentences_score=(1.0*len(strong_matched_sent)
                 + 0.5*len(weak_matched_sent))/len(jd_sentences) if jd_sentences else 0
-
+    
     final=final_scoring(tfidf_score,semantic_score_value,skills_score,sentences_score,structure_score)
 
     explanation=generate_explanation(strong_matched_skills,weak_matched_skills,semantic_missing_skills)

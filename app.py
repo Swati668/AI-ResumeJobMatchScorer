@@ -67,8 +67,9 @@ if analyze:
             nlp_result = analyze_resume(jd_text, resume_text)
 
             from agents.combined_agent import CareerAnalystAgent
+            
             career_analyst = CareerAnalystAgent()
-
+            
             agent_output = career_analyst.run({
             "resume": resume_text,
             "jd": jd_text
@@ -77,8 +78,7 @@ if analyze:
             agent_result = {
             "career_analyst": agent_output
                 } 
-             
-
+            
         except Exception as e:
             st.error(f"Model failed: {e}")
             nlp_result = {}
@@ -111,72 +111,112 @@ if analyze:
     # ---------------- TAB 3: SKILLS ----------------
     with tab3:
         col1, col2 = st.columns(2)
+        strong_skills = nlp_result.get("strong_skills", [])
+        weak_skills = nlp_result.get("weak_skills", [])
+        missing_skills = nlp_result.get("missing_skills", [])
 
+        
         with col1:
             st.subheader("Strong Skills")
-            st.success(" • ".join(nlp_result['strong_skills']))
+            st.success(" • ".join(strong_skills) if strong_skills else "No strong skills found.")
 
             st.subheader("Weak Skills")
-            st.warning(" • ".join(nlp_result['weak_skills']))
+            st.warning(" • ".join(weak_skills) if weak_skills else "No weak skills found.")
 
         with col2:
             st.subheader("Missing Skills")
-            st.error(" • ".join(nlp_result['missing_skills']))
+            st.error(" • ".join(missing_skills) if missing_skills else "No missing skills found.")
 
     # ---------------- TAB 4: SKILL IMPORTANCE ----------------
     with tab4:
         st.subheader("Skill Importance Analysis")
 
-        missing_skills_importance = nlp_result['missing_skills_importance']
+        missing_skills_importance = nlp_result.get("missing_skills_importance", {})
 
-        critical, moderate, optional = [], [], []
+        if not missing_skills_importance:
+            st.info("No missing skills identified.")
+        else:
 
-        for skill, label in missing_skills_importance.items():
-            if label == "critical":
-                critical.append(skill)
-            elif label == "optional":
-                optional.append(skill)
-            else:
-                moderate.append(skill)
+            critical, moderate, optional = [], [], []
 
-        st.markdown("**Critical Skills**")
-        for skill in critical:
-            context_text = best_context(skill, jd_text)
-            st.error(f"{skill} → {context_text}")
+            for skill, label in missing_skills_importance.items():
+                if label == "critical":
+                    critical.append(skill)
+                elif label == "optional":
+                    optional.append(skill)
+                else:
+                    moderate.append(skill)
 
-        st.markdown("**Moderate Skills**")
-        for skill in moderate:
-            context_text = best_context(skill, jd_text)
-            st.warning(f"{skill} → {context_text}")
+            if critical:
+                st.markdown("### Critical Skills")
+                for skill in critical:
+                    context_text = best_context(skill, jd_text)
+                    st.error(f"{skill} → {context_text}")
 
-        st.markdown("**Optional Skills**")
-        for skill in optional:
-            context_text = best_context(skill, jd_text)
-            st.success(f"{skill} → {context_text}")
+            if moderate:
+                st.markdown("### Moderate Skills")
+                for skill in moderate:
+                    context_text = best_context(skill, jd_text)
+                    st.warning(f"{skill} → {context_text}")
+
+            if optional:
+                st.markdown("### Optional Skills")
+                for skill in optional:
+                    context_text = best_context(skill, jd_text)
+                    st.success(f"{skill} → {context_text}")
+
 
     # ---------------- TAB 5: DETAILED SCORES ----------------
     with tab5:
+
         st.subheader("Detailed Scores")
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.write(f"TF-IDF Score: {nlp_result['tfidf']:.2f}")
-            st.write(f"Semantic Score: {nlp_result['semantic']:.2f}")
+            st.metric(
+                "TF-IDF Score",
+                f"{nlp_result.get('tfidf', 0):.2f}"
+            )
+
+            st.metric(
+                "Semantic Score",
+                f"{nlp_result.get('semantic', 0):.2f}"
+            )
 
         with col2:
-            st.write(f"Skills Score: {nlp_result['skills_score']:.2f}")
-            st.write(f"Sentence Score: {nlp_result['sentences_score']:.2f}")
+            st.metric(
+                "Skills Score",
+                f"{nlp_result.get('skills_score', 0):.2f}"
+            )
 
-        st.subheader('Section Wise Scores')
+            st.metric(
+                "Sentence Score",
+                f"{nlp_result.get('sentences_score', 0):.2f}"
+            )
 
-        for section, score_val in nlp_result['section_scores'].items():
-            if score_val is None:
-                st.write(f'{section.capitalize()} : N/A')
-            else:
-                st.write(f'{section.capitalize()}: {score_val:.2f}')
+        st.divider()
 
-    
+        st.subheader("Section-wise Scores")
+
+        section_scores = nlp_result.get("section_scores", {})
+
+        if not section_scores:
+            st.info("Section-wise analysis is unavailable.")
+        else:
+
+            for section, score_val in section_scores.items():
+
+                if score_val is None:
+                    st.write(
+                        f"**{section.capitalize()}** : "
+                        "Not applicable (section not found in resume or job description)"
+                    )
+                else:
+                    st.write(
+                        f"**{section.capitalize()}** : "
+                        f"{score_val:.2f}"
+                )
     # ---------------- TAB 6: INSIGHTS + AGENTS ----------------
     with tab6:
 
@@ -184,33 +224,39 @@ if analyze:
 
     # ---------------- NLP INSIGHTS ----------------
         with st.expander("NLP Skill Insights", expanded=False):
-            for item in nlp_result['explanation']:
-                skill = item['skill']
-                match = item['match_type']
-                reason = item['reason']
+            explanations = nlp_result.get("explanation", [])
 
-                if match == "STRONG":
-                    st.success(f"{skill} → {reason}")
-                elif match == "WEAK":
-                    st.warning(f"{skill} → {reason}")
-                else:
-                    st.error(f"{skill} → {reason}")
+            if not explanations:
+                st.info("No NLP insights available.")
+            else:
+                for item in explanations:
+                    skill = item.get("skill", "")
+                    match = item.get("match_type", "")
+                    reason = item.get("reason", "")
+
+                    if match == "STRONG":
+                        st.success(f"{skill} → {reason}")
+                    elif match == "WEAK":
+                        st.warning(f"{skill} → {reason}")
+                    else:
+                        st.error(f"{skill} → {reason}")
 
         st.divider()
 
         # ---------------- (COMBINED AGENT) ----------------
         if agent_result and "career_analyst" in agent_result:
 
-            data = agent_result["career_analyst"]
-            if agent_result['career_analyst']["status"] == "error":
-                st.warning(agent_result['career_analyst']["message"])
+            
+            response = agent_result["career_analyst"]
 
+            if response["status"] == "error":
+                st.warning(response["message"])
             else:
-        
+                data = response["data"]
+            
                 st.subheader("Resume Score")
                 st.metric("Overall Score", data.get("score", "N/A"))
-
-                
+ 
                 with st.expander("Strengths"):
                     st.markdown("\n".join(data.get("strengths", ["No data"])))
 
@@ -238,17 +284,50 @@ if analyze:
                 # ---------------- IMPROVED RESUME ----------------
                 with st.expander("Improved Resume (AI Version)", expanded=True):
 
-                    improved = data.get("improved_resume", "")
+                    improved = data.get("improved_resume", {})
 
                     if isinstance(improved, dict):
+
+                        # Summary
                         st.markdown("### Summary")
                         st.markdown(improved.get("summary", "No data"))
 
-                        st.markdown("### Experience Bullets")
-                        st.markdown("\n".join(improved.get("experience_bullets", [])))
+                        # Experience
+                        st.markdown("### Experience")
 
+                        experience = improved.get("experience_bullets", [])
+
+                        if not experience:
+                            st.write("No experience generated.")
+
+                        else:
+                            for item in experience:
+
+                                # Case 1: Gemini returned structured objects
+                                if isinstance(item, dict):
+
+                                    st.markdown(f"#### {item.get('title', 'Experience')}")
+
+                                    tech = item.get("technologies")
+                                    if tech:
+                                        st.write(f"**Technologies:** {tech}")
+
+                                    bullets = item.get("bullets", [])
+
+                                    if isinstance(bullets, list):
+                                        for bullet in bullets:
+                                            st.write(f"• {bullet}")
+                                    elif bullets:
+                                        st.write(f"• {bullets}")
+
+                                # Case 2: Gemini returned plain strings
+                                else:
+                                    st.write(f"• {item}")
+
+                        # Skills Section
                         st.markdown("### Skills Section")
                         st.markdown(improved.get("skills_section", "No data"))
+
                     else:
                         st.markdown(improved if improved else "No data")
 
@@ -257,38 +336,106 @@ if analyze:
     # ---------------- PDF DOWNLOAD ----------------
         from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet
+        from datetime import datetime
 
         pdf_file = "resume_report.pdf"
+
         doc = SimpleDocTemplate(pdf_file)
         styles = getSampleStyleSheet()
 
         content = []
 
-        content.append(Paragraph("Resume Match Report", styles['Title']))
-        content.append(Spacer(1, 10))
+                        # ---------------- Title ----------------
+        content.append(Paragraph("AI Resume Match Report", styles["Title"]))
+        content.append(Spacer(1, 12))
 
-        content.append(Paragraph(f"Overall Score: {score}%", styles['Normal']))
-        content.append(Spacer(1, 10))
+        content.append(
+            Paragraph(
+                f"Generated on: {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
+                styles["Normal"],
+            )
+        )
 
-        content.append(Paragraph(f"Strong Skills: {', '.join(nlp_result['strong_skills'])}", styles['Normal']))
-        content.append(Paragraph(f"Weak Skills: {', '.join(nlp_result['weak_skills'])}", styles['Normal']))
-        content.append(Paragraph(f"Missing Skills: {', '.join(nlp_result['missing_skills'])}", styles['Normal']))
+        content.append(Spacer(1, 15))
 
-        content.append(Spacer(1, 10))
+        # ---------------- Overall Score ----------------
+        content.append(
+            Paragraph(
+                f"<b>Overall Match Score:</b> {score:.1f}%",
+                styles["Normal"],
+            )
+        )
 
-        content.append(Paragraph(f"TF-IDF Score: {nlp_result['tfidf']:.2f}", styles['Normal']))
-        content.append(Paragraph(f"Semantic Score: {nlp_result['semantic']:.2f}", styles['Normal']))
-        content.append(Paragraph(f"Skills Score: {nlp_result['skills_score']:.2f}", styles['Normal']))
-        content.append(Paragraph(f"Sentence Score: {nlp_result['sentences_score']:.2f}", styles['Normal']))
+        content.append(Spacer(1, 12))
+
+        # ---------------- Skills ----------------
+        strong_skills = nlp_result.get("strong_skills", [])
+        weak_skills = nlp_result.get("weak_skills", [])
+        missing_skills = nlp_result.get("missing_skills", [])
+
+        content.append(
+            Paragraph(
+                f"<b>Strong Skills:</b> "
+                f"{', '.join(strong_skills) if strong_skills else 'None'}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(
+            Paragraph(
+                f"<b>Weak Skills:</b> "
+                f"{', '.join(weak_skills) if weak_skills else 'None'}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(
+            Paragraph(
+                f"<b>Missing Skills:</b> "
+                f"{', '.join(missing_skills) if missing_skills else 'None'}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(Spacer(1, 12))
+
+        # ---------------- Detailed Scores ----------------
+        content.append(
+            Paragraph(
+                f"<b>TF-IDF Score:</b> {nlp_result.get('tfidf', 0):.2f}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(
+            Paragraph(
+                f"<b>Semantic Score:</b> {nlp_result.get('semantic', 0):.2f}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(
+            Paragraph(
+                f"<b>Skills Score:</b> {nlp_result.get('skills_score', 0):.2f}",
+                styles["Normal"],
+            )
+        )
+
+        content.append(
+            Paragraph(
+                f"<b>Sentence Score:</b> {nlp_result.get('sentences_score', 0):.2f}",
+                styles["Normal"],
+            )
+        )
 
         doc.build(content)
 
         with open(pdf_file, "rb") as f:
-                st.download_button(
+            st.download_button(
                 label="Download PDF Report",
                 data=f,
                 file_name="resume_report.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
             )
 
 # ---------------- RANKING RESUMES ----------------
@@ -324,17 +471,21 @@ with tab7:
         else:
             with st.spinner("Analyzing and ranking resumes..."):
                 results = rank_resumes(uploaded_resumes, jd_text)
-
+            
             st.success("Ranking Completed!")
 
             # ---------------- SUMMARY TABLE ----------------
             st.subheader("Ranking Summary")
 
+            if not results:
+                st.error("No resumes could be analyzed.")
+                st.stop()
+
             summary_data = [
                 {
                     "Rank": idx + 1,
-                    "Resume": res["filename"],
-                    "Score (%)": res["final_score"]
+                    "Resume": res.get("filename", "Unknown"),
+                    "Score (%)": res.get("final_score", 0)
                 }
                 for idx, res in enumerate(results)
             ]
@@ -343,74 +494,117 @@ with tab7:
 
             st.divider()
 
-            # ---------------- TOP RESUMES ----------------
+            # ---------------- TOP RESUME ----------------
             top_resume = results[0]
 
             st.subheader("Best Resume")
+            st.success(
+                f"{top_resume.get('filename', 'Unknown')} — "
+                f"{top_resume.get('final_score', 0)}%"
+            )
 
-            st.success(f"{top_resume['filename']} — {top_resume['final_score']}%")
-
-            # ---------------- DETAILED VIEW ----------------
+            # ---------------- DETAILED BREAKDOWN ----------------
             st.subheader("Detailed Breakdown")
 
-            for idx, res in enumerate(results, 1):
-                with st.expander(f"Rank {idx}: {res['filename']} ({res['final_score']}%)"):
+            for idx, res in enumerate(results, start=1):
 
-                    if "error" in res:
-                        st.error(f"Error processing file: {res['error']}")
-                    else:
-                        col1, col2 = st.columns(2)
+                with st.expander(
+                    f"Rank {idx}: "
+                    f"{res.get('filename', 'Unknown')} "
+                    f"({res.get('final_score', 0)}%)"
+                ):
 
-                        with col1:
-                            st.metric("Semantic", f"{res['semantic_score']}%")
-                            st.metric("Skills", f"{res['skills_score']}%")
+                    if res.get("error"):
+                        st.error(res["error"])
+                        continue
 
-                        with col2:
-                            st.metric("Structure", f"{res['structure_score']}%")
-                            st.metric("Final", f"{res['final_score']}%")
+                    col1, col2 = st.columns(2)
 
-            # ---------------- REASONING AGENT ----------------
+                    with col1:
+                        st.metric(
+                            "Semantic",
+                            f"{res.get('semantic_score', 0)}%"
+                        )
+
+                        st.metric(
+                            "Skills",
+                            f"{res.get('skills_score', 0)}%"
+                        )
+
+                    with col2:
+                        st.metric(
+                            "Structure",
+                            f"{res.get('structure_score', 0)}%"
+                        )
+
+                        st.metric(
+                            "Final",
+                            f"{res.get('final_score', 0)}%"
+                        )
+
+            # ---------------- AI REASONING ----------------
             if use_reasoning:
 
                 st.divider()
                 st.subheader("AI Resume Reasoning & Improvement")
+
                 top_k = results[:3]
 
                 ranked_resumes = [
                     {
-                        "name": r["filename"],
-                        "score": r["final_score"],
-                        "summary": r.get("summary", "")[:500]  # limit text
+                        "name": r.get("filename", "Unknown Resume"),
+                        "score": r.get("final_score", 0),
+                        "missing_skills": r.get("missing_skills", []),
+                        "strong_skills": r.get("strong_skills", []),
+                        "weak_skills": r.get("weak_skills", []),
+
+                        "resume_text": r.get("resume_text", "")[:1500],
                     }
                     for r in top_k
                 ]
 
                 from agents.resume_reasoning_agent import ResumeReasoningAgent
 
-                reasoning_agent = ResumeReasoningAgent(llm_type="gemini")
+                reasoning_agent = ResumeReasoningAgent()
 
                 with st.spinner("Generating AI reasoning..."):
-                    reasoning_result = reasoning_agent.run({
-                        "ranked_resumes": ranked_resumes,
-                        "job_description": jd_text
-                    })
+
+                    reasoning_result = reasoning_agent.run(
+                        {
+                            "ranked_resumes": ranked_resumes,
+                            "job_description": jd_text
+                        }
+                    )
 
                 
-                # ---------------- DISPLAY ----------------
-                if reasoning_result["status"] == "error":
-                    st.warning("AI analysis not available due to API limit or service error")
+                if reasoning_result.get("status") == "error":
+
+                    st.info(
+                        "AI reasoning is temporarily unavailable.\n\n"
+                        "The resume ranking above is still generated using the NLP scoring engine."
+                    )
 
                 else:
-                    data = reasoning_result["data"]
 
-                    st.markdown("### Why this resume is best")
-                    st.info(data.get("reasoning", "No reasoning available"))
+                    data = reasoning_result.get("data", {})
 
-                    st.markdown("### How to improve the best resume")
+                    st.markdown("### Why this resume is the best match")
+
+                    st.info(
+                        data.get(
+                            "reasoning",
+                            "No AI reasoning available."
+                        )
+                    )
+
+                    st.markdown("### Suggested Improvements")
 
                     improvements = data.get("improvements", [])
+
                     if improvements:
+
                         for imp in improvements:
                             st.write(f"• {imp}")
+
                     else:
-                        st.write("No improvements suggested")
+                        st.write("No improvement suggestions available.")

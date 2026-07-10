@@ -1,4 +1,5 @@
-from modules.model_utils import get_kp,skills_list #importing skills_list directly from model_utils module 
+from modules.model_utils import get_kp,skills_list 
+#importing skills_list directly from model_utils module 
 
 import re
 

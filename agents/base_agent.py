@@ -4,7 +4,7 @@ import time
 import json
 
 agent_cache = {}
-
+print("entered")
 
 class BaseAgent:
 
@@ -20,41 +20,60 @@ class BaseAgent:
         """
         Default prompt (override in child agents if needed)
         """
+        print('prompt created')
         resume = context.get("resume", "")
         jd = context.get("jd", "")
 
         return f"""
-You are an expert AI resume evaluator.
+        You are an expert AI resume evaluator.
 
-Return only valid JSON.
+        Return only valid JSON.
 
-Format:
-{{
-  "score": 0,
-  "strengths": [],
-  "weaknesses": [],
-  "skill_gaps": [],
-  "suggestions": [],
-  "career_guidance": [],
-  "ats_optimization_tips": [],
-  "improved_resume": {{
-    "summary": "",
-    "experience_bullets": [],
-    "skills_section": ""
-  }}
-}}
+        Format:
+        {{
+        "score": 0,
+        "strengths": [],
+        "weaknesses": [],
+        "skill_gaps": [],
+        "suggestions": [],
+        "career_guidance": [],
+        "ats_optimization_tips": [],
+        "improved_resume": {{
+            "summary": "",
+            "experience_bullets": [],
+            "skills_section": ""
+        }}
+        }}
 
-RESUME:
-{resume}
+        RESUME:
+        {resume}
 
-JOB DESCRIPTION:
-{jd}
-"""
+        JOB DESCRIPTION:
+        {jd}
+        """
 
-   
+    def parse_json_response(self, response):
+      
+        """
+        Cleans Gemini markdown and converts it to Python dict.
+        """
+
+        cleaned = response.strip()
+
+        if cleaned.startswith("```"):
+            cleaned = cleaned.replace("```json", "")
+            cleaned = cleaned.replace("```", "")
+            cleaned = cleaned.strip()
+
+        return json.loads(cleaned)
+    
+
     def _call_llm(self, prompt: str) -> str:
+        print("llm")
+        
         for attempt in range(self.max_retries + 1):
             try:
+         
                 return generate_response(
                     prompt=prompt,
                     llm_type=self.llm_type,
@@ -77,6 +96,7 @@ JOB DESCRIPTION:
     
 
     def postprocess(self, response, context):
+        print("process")
         try:
             cleaned = response.strip()
 
@@ -109,21 +129,24 @@ JOB DESCRIPTION:
                 "agent": self.name,
                 "status": "error",
                 "data": None,
-                "message": "Failed to parse AI response",
+                "message": "AI insights are temporarily unavailable.",
                 "raw_output": response
             }
 
    
     def run(self, user_input: dict):
-
+        print("running")
+        
         cache_key = create_cache_key(self.name, user_input)
 
         if cache_key in agent_cache:
             return {**agent_cache[cache_key], "cached": True}
 
         prompt = self.build_prompt(user_input)
+        
         response = self._call_llm(prompt)
         result = self.postprocess(response, user_input)
+        print(result)
 
         agent_cache[cache_key] = result
 

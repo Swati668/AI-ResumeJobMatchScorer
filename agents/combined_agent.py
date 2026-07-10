@@ -25,7 +25,8 @@ class CareerAnalystAgent(BaseAgent):
 
     def postprocess(self, response, context):
         try:
-            parsed = json.loads(response)
+            parsed = self.parse_json_response(response)
+   
             if isinstance(parsed, dict) and parsed.get("error") is True:
                 return {
                     "agent": self.name,
@@ -45,7 +46,9 @@ class CareerAnalystAgent(BaseAgent):
                     "skill_gaps": parsed.get("skill_gaps", []),
                     "suggestions": parsed.get("suggestions", []),
                     "career_guidance": parsed.get("career_guidance", []),
+                     "ats_optimization_tips": parsed.get("ats_optimization_tips",[]),
                     "improved_resume": parsed.get("improved_resume", "")
+                    
                 }
             }
 
@@ -54,8 +57,10 @@ class CareerAnalystAgent(BaseAgent):
                 "agent": self.name,
                 "status": "error",
                 "data": None,
-                "message": "Failed to parse AI response",
+                "message": "AI insights are temporarily unavailable.",
                 "raw_output": response.strip()
             }
+
+        
         
     

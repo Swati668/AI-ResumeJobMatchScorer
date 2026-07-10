@@ -11,18 +11,30 @@ def rank_resumes(resume_files, jd_text):
             output = analyze_resume(jd_text, resume_text)
 
             final_score = output.get('final_score', 0)
-            semantic_score = output.get('semantic_score_value', 0)
+            semantic_score = output.get('semantic', 0)
             skills_score = output.get('skills_score', 0)
             structure_score = output.get('structure_score', 0)
 
-            results.append({
-                "filename": file.name,
-                "final_score": final_score,
-                "semantic_score": round(semantic_score * 100, 2),
-                "skills_score": round(skills_score * 100, 2),
-                "structure_score": round(structure_score * 100, 2)
-            })
+            # results.append({
+            #     "filename": file.name,
+            #     "final_score": final_score,
+            #     "semantic_score": round(semantic_score * 100, 2),
+            #     "skills_score": round(skills_score * 100, 2),
+            #     "structure_score": round(structure_score * 100, 2)
+            # })
 
+            results.append({
+            "filename": file.name,
+            "final_score": final_score,
+            "semantic_score": round(output["semantic"] * 100, 2),
+            "skills_score": round(skills_score * 100, 2),
+            "structure_score": round(structure_score * 100, 2),
+
+            "strong_skills": output["strong_skills"],
+            "weak_skills": output["weak_skills"],
+            "missing_skills": output["missing_skills"],
+            "resume_text": resume_text
+            })
         except Exception as e:
             results.append({
                 "filename": file.name,
